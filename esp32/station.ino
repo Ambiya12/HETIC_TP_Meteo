@@ -4,8 +4,8 @@
 #include "DHT.h";
 
 // WiFi
-const char *WIFI_SSID = "Galyst";
-const char *WIFI_PASSWORD = "galystann";
+const char *WIFI_SSID = "YourWiFiName";
+const char *WIFI_PASSWORD = "YourWiFiPassword";
 
 // MQTT
 const char *MQTT_SERVER = "captain.dev0.pandor.cloud";
