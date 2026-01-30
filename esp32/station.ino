@@ -31,8 +31,6 @@ const int LED_PIN_F = 14;
 const int BUTTON_PIN = 16;
 
 // Simulation Variables
-float tempCelsius = 20.0;
-float humidity = 50.0;
 bool isCelsius = true;
 bool lastButtonState = HIGH;
 // Timing for simulation
@@ -129,7 +127,6 @@ void setup() {
 
   // Connect to WiFi
   setupWiFi();
-
   // Setup and connect to MQTT
   setupMQTT();
   connectMQTT();
@@ -145,58 +142,46 @@ void loop() {
   mqttClient.loop();
 
   unsigned long currentTime = millis();
-  if (currentTime - lastPublishTime >= PUBLISH_INTERVAL) {
-    // Simulated data
-    float temp = 22.0 + random(-30, 30) / 10.0;
-    float humidity = 60.0 + random(-100, 100) / 10.0;
-    char unit = 'C';
 
-    publishWeatherData(temp, humidity, unit);
+  unsigned long currentMillis = millis();
+  bool currentButtonState = digitalRead(BUTTON_PIN);
 
-    lastPublishTime = currentTime;
-  }
-
-    unsigned long currentMillis = millis();
-    bool currentButtonState = digitalRead(BUTTON_PIN);
-
-    if (currentButtonState != lastButtonState && currentButtonState == LOW){
-      isCelsius = !isCelsius;
-      
-      if (isCelsius) {
-        digitalWrite(LED_PIN_C, HIGH);
-        digitalWrite(LED_PIN_F, LOW);
-      } else {
-        digitalWrite(LED_PIN_C, LOW);
-        digitalWrite(LED_PIN_F, HIGH);
-      }
-      
-      delay(50); 
+  if (currentButtonState != lastButtonState && currentButtonState == LOW){
+    isCelsius = !isCelsius;
+    
+    if (isCelsius) {
+      digitalWrite(LED_PIN_C, HIGH);
+      digitalWrite(LED_PIN_F, LOW);
+    } else {
+      digitalWrite(LED_PIN_C, LOW);
+      digitalWrite(LED_PIN_F, HIGH);
     }
-    lastButtonState = currentButtonState;
+    
+    delay(50); 
+  }
+  lastButtonState = currentButtonState;
 
-    if (currentMillis - previousMillisData >= intervalData) {
-      tempCelsius += random(-5, 6) / 10.0;
-      humidity += random(-10, 11) / 10.0;
-
-      if (tempCelsius > 40.0) tempCelsius = 40.0;
-      if (tempCelsius < 10.0) tempCelsius = 10.0;
-      if (humidity > 100.0) humidity = 100.0;
-      if (humidity < 0.0) humidity = 0.0;
-
-      if (isCelsius) {
-        publishWeatherData(tempCelsius, humidity, 'C');
-      } else {
-        float tempFahrenheit = (tempCelsius * 1.8) + 32.0;
-        publishWeatherData(tempFahrenheit, humidity, 'F');
-              Serial.print("Temp: ");
+  if (currentMillis - previousMillisData >= intervalData) {
+    float temperature = dht.readTemperature();
+    float humidity = dht.readHumidity();
+    
+    if (isCelsius) {
+      publishWeatherData(temperature, humidity, 'C');
+      Serial.print("Temp: ");
+      Serial.print(temperature);
+      Serial.print(" °C");
+    } else {
+      float tempF = temperature * 1.8 + 32;
+      publishWeatherData(tempF, humidity, 'F');
+      Serial.print("Temp: ");
       Serial.print(tempF);
       Serial.print(" °F");
-      }
-
-      Serial.print(" | Hum: ");
-      Serial.print(humidity);
-      Serial.println(" %");
-
-      previousMillisData = currentMillis;
     }
+
+    Serial.print(" | Hum: ");
+    Serial.print(humidity);
+    Serial.println(" %");
+
+    previousMillisData = currentMillis;
+  }
 }
