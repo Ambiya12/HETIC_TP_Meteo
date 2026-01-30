@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Station Météo HETIC</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="grain-overlay"></div>
+  
+  <div class="container">
+    <header class="header">
+      <div class="header-content">
+        <h1 class="title">
+          <span class="title-main">METEO</span>
+          <span class="title-sub">STATION</span>
+        </h1>
+        <div class="status-bar">
+          <div class="status-indicator" id="status">
+            <span class="status-dot"></span>
+            <span class="status-text">Connexion...</span>
+          </div>
+          <div class="time" id="time"></div>
+        </div>
+      </div>
+    </header>
+
+    <main class="grid">
+      <div class="card card-temperature">
+        <div class="card-header">
+          <h2 class="card-title">TEMPÉRATURE</h2>
+          <div class="card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="metric-value" id="temperature">
+          <span class="value">--</span>
+          <span class="unit">°C</span>
+        </div>
+        <div class="card-footer">
+          <div class="last-update">Dernière mise à jour: <span id="temp-update">--</span></div>
+        </div>
+      </div>
+
+      <div class="card card-humidity">
+        <div class="card-header">
+          <h2 class="card-title">HUMIDITÉ</h2>
+          <div class="card-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>
+            </svg>
+          </div>
+        </div>
+        <div class="metric-value" id="humidity">
+          <span class="value">--</span>
+          <span class="unit">%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="humidity-bar" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="card card-mode">
+        <div class="card-header">
+          <h2 class="card-title">UNITÉ ACTIVE</h2>
+        </div>
+        <div class="mode-display">
+          <div class="mode-indicator" id="mode-indicator">
+            <div class="mode-option" data-mode="celsius">
+              <div class="mode-circle"></div>
+              <span>CELSIUS</span>
+            </div>
+            <div class="mode-option" data-mode="fahrenheit">
+              <div class="mode-circle"></div>
+              <span>FAHRENHEIT</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button class="control-button" id="toggle-unit">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="23 4 23 10 17 10"/>
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+            </svg>
+            CHANGER L'UNITÉ
+          </button>
+        </div>
+      </div>
+
+      <div class="card card-info">
+        <div class="card-header">
+          <h2 class="card-title">INFORMATIONS</h2>
+        </div>
+        <div class="info-content">
+          <div class="info-item">
+            <span class="info-label">Mode</span>
+            <span class="info-value" id="data-mode">--</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Capteur</span>
+            <span class="info-value">DHT22</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Protocole</span>
+            <span class="info-value">MQTT/WS</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Messages reçus</span>
+            <span class="info-value" id="message-count">0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card card-history">
+        <div class="card-header">
+          <h2 class="card-title">HISTORIQUE</h2>
+        </div>
+        <div class="history-list" id="history">
+          <div class="history-empty">En attente de données...</div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-content">
+        <div class="footer-left">
+          <span>HETIC WEB3 × ESP32</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
