@@ -3,8 +3,8 @@
 #include <WiFi.h>
 
 // WiFi
-const char *WIFI_SSID = "toto";
-const char *WIFI_PASSWORD = "toto";
+const char *WIFI_SSID = "Galyst";
+const char *WIFI_PASSWORD = "galystann";
 
 // MQTT
 const char *MQTT_SERVER = "captain.dev0.pandor.cloud";
@@ -12,9 +12,7 @@ const int MQTT_PORT = 1884;
 const char *MQTT_CLIENT_ID = "ESP32-Weather-Station";
 
 // MQTT Topics
-const char *TOPIC_TEMPERATURE = "station-meteo/temperature";
-const char *TOPIC_HUMIDITY = "station-meteo/humidity";
-const char *TOPIC_UNIT = "station-meteo/unit";
+const char *TOPIC_DATA = "station-meteo/data";
 const char *TOPIC_SET_UNIT = "station-meteo/set-unit";
 
 // Timing for periodic publishing
@@ -79,15 +77,17 @@ void publishWeatherData(float temperature, float humidity, char unit) {
     connectMQTT();
   }
 
-  // Créer le JSON
-  String jsonData = createDataJson(temperature, humidity, unit);
+  String tempStr = String(temperature, 1);
+  String humStr = String(humidity, 1);
+  String unitStr = String(unit);
 
-  // Publier sur le topic temperature (un seul topic avec toutes les données)
-  mqttClient.publish(TOPIC_TEMPERATURE, jsonData.c_str());
+  // Publish JSON to data topic
+  mqttClient.publish(TOPIC_DATA, createDataJson(temperature, humidity, unit).c_str());
 
   // Debug output
-  Serial.println("Published JSON:");
-  Serial.println(jsonData);
+  Serial.println("Published:");
+  Serial.println("  Temperature: " + tempStr + " °" + unitStr);
+  Serial.println("  Humidity: " + humStr + " %");
 }
 
 // Setup
