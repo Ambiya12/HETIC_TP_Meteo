@@ -12,9 +12,7 @@ const int MQTT_PORT = 1884;
 const char *MQTT_CLIENT_ID = "ESP32-Weather-Station";
 
 // MQTT Topics
-const char *TOPIC_TEMPERATURE = "station-meteo/temperature";
-const char *TOPIC_HUMIDITY = "station-meteo/humidity";
-const char *TOPIC_UNIT = "station-meteo/unit";
+const char *TOPIC_DATA = "station-meteo/data";
 const char *TOPIC_SET_UNIT = "station-meteo/set-unit";
 
 // Timing for periodic publishing
@@ -83,8 +81,8 @@ void publishWeatherData(float temperature, float humidity, char unit) {
   String humStr = String(humidity, 1);
   String unitStr = String(unit);
 
-  // Publish JSON to temperature topic
-  mqttClient.publish(TOPIC_TEMPERATURE, createDataJson(temperature, humidity, unit).c_str());
+  // Publish JSON to data topic
+  mqttClient.publish(TOPIC_DATA, createDataJson(temperature, humidity, unit).c_str());
 
   // Debug output
   Serial.println("Published:");
