@@ -8,10 +8,10 @@ const wsServer = new WebSocket.WebSocketServer({ port: 8080 });
 const client = Mqtt.connect("mqtt://" + Host + ":" + Port);
 
 const webSocketClient: WebSocket[] = [];
+
+// MQTT Topics to subscribe
 const mqttTopics = [
-	"station-meteo/temperature",
-	"station-meteo/humidity",
-	"station-meteo/unit",
+	"station-meteo/data",
 	"station-meteo/set-unit",
 ];
 

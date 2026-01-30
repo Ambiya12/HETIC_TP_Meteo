@@ -1,0 +1,14 @@
+{
+	"data": {
+		"deviceId": "esp32-01",
+		"timestamp": 1736080000,
+		"temperature": 22.4,
+		"humidity": 48.1
+	},
+
+	"set-unit": {
+		"deviceId": "esp32-01",
+		"ts": 1736080050,
+		"unit": "C | F"
+	}
+}

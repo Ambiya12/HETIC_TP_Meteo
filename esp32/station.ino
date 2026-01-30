@@ -79,19 +79,15 @@ void publishWeatherData(float temperature, float humidity, char unit) {
     connectMQTT();
   }
 
-  // Publish to individual topics
-  String tempStr = String(temperature, 1);
-  String humStr = String(humidity, 1);
-  String unitStr = String(unit);
+  // Créer le JSON
+  String jsonData = createDataJson(temperature, humidity, unit);
 
-  mqttClient.publish(TOPIC_TEMPERATURE, tempStr.c_str());
-  mqttClient.publish(TOPIC_HUMIDITY, humStr.c_str());
-  mqttClient.publish(TOPIC_UNIT, unitStr.c_str());
+  // Publier sur le topic temperature (un seul topic avec toutes les données)
+  mqttClient.publish(TOPIC_TEMPERATURE, jsonData.c_str());
 
   // Debug output
-  Serial.println("Published:");
-  Serial.println("  Temperature: " + tempStr + " °" + unitStr);
-  Serial.println("  Humidity: " + humStr + " %");
+  Serial.println("Published JSON:");
+  Serial.println(jsonData);
 }
 
 // Setup
