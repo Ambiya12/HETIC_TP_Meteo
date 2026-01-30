@@ -4,8 +4,8 @@
 #include "DHT.h";
 
 // WiFi
-const char *WIFI_SSID = "YourWiFiName";
-const char *WIFI_PASSWORD = "YourWiFiPassword";
+const char *WIFI_SSID = "Galyst";
+const char *WIFI_PASSWORD = "galystann";
 
 // MQTT
 const char *MQTT_SERVER = "captain.dev0.pandor.cloud";
@@ -30,12 +30,16 @@ const int LED_PIN_C = 13;
 const int LED_PIN_F = 14;
 const int BUTTON_PIN = 16;
 
-// Simulation Variables
+// State
 bool isCelsius = true;
 bool lastButtonState = HIGH;
-// Timing for simulation
 unsigned long previousMillisData = 0;
 const long intervalData = 1000;
+
+// Simulation (fallback si capteur absent)
+float simTemperature = 22.0;
+float simHumidity = 55.0;
+bool useSensorData = true;
 
 // WiFi and MQTT Clients
 WiFiClient espClient;
@@ -75,14 +79,33 @@ void connectMQTT() {
   }
 }
 
+// Simulation de données météo (fallback si capteur absent)
+void simulateWeatherData(float &temperature, float &humidity, char unit) {
+  simTemperature += random(-5, 6) / 10.0;
+  if (simTemperature > 40.0) simTemperature = 40.0;
+  if (simTemperature < -10.0) simTemperature = -10.0;
+
+  simHumidity += random(-10, 11) / 10.0;
+  if (simHumidity > 100.0) simHumidity = 100.0;
+  if (simHumidity < 0.0) simHumidity = 0.0;
+
+  if (unit == 'F') {
+    temperature = simTemperature * 1.8 + 32.0;
+  } else {
+    temperature = simTemperature;
+  }
+  humidity = simHumidity;
+}
+
 // JSON Message
-String createDataJson(float temperature, float humidity, char unit) {
+String createDataJson(float temperature, float humidity, char unit, bool isRealData) {
   StaticJsonDocument<200> doc;
 
   doc["id"] = "esp32-01";
   doc["temperature"] = temperature;
   doc["humidity"] = humidity;
   doc["unit"] = String(unit);
+  doc["mode"] = isRealData ? "reel" : "simulation";
 
   String output;
   serializeJson(doc, output);
@@ -91,22 +114,24 @@ String createDataJson(float temperature, float humidity, char unit) {
 }
 
 // Publish Weather Data
-void publishWeatherData(float temperature, float humidity, char unit) {
+void publishWeatherData(float temperature, float humidity, char unit, bool isRealData) {
   if (!mqttClient.connected()) {
     connectMQTT();
   }
 
-  String tempStr = String(temperature, 1);
-  String humStr = String(humidity, 1);
-  String unitStr = String(unit);
-
   // Publish JSON to data topic
-  mqttClient.publish(TOPIC_DATA, createDataJson(temperature, humidity, unit).c_str());
+  mqttClient.publish(TOPIC_DATA, createDataJson(temperature, humidity, unit, isRealData).c_str());
 
   // Debug output
-  Serial.println("Published:");
-  Serial.println("  Temperature: " + tempStr + " °" + unitStr);
-  Serial.println("  Humidity: " + humStr + " %");
+  Serial.print("[");
+  Serial.print(isRealData ? "REEL" : "SIMU");
+  Serial.print("] Temp: ");
+  Serial.print(temperature, 1);
+  Serial.print(" °");
+  Serial.print(unit);
+  Serial.print(" | Hum: ");
+  Serial.print(humidity, 1);
+  Serial.println(" %");
 }
 
 // Setup
@@ -164,23 +189,28 @@ void loop() {
   if (currentMillis - previousMillisData >= intervalData) {
     float temperature = dht.readTemperature();
     float humidity = dht.readHumidity();
-    
-    if (isCelsius) {
-      publishWeatherData(temperature, humidity, 'C');
-      Serial.print("Temp: ");
-      Serial.print(temperature);
-      Serial.print(" °C");
+    char unit = isCelsius ? 'C' : 'F';
+
+    // Si le capteur ne répond pas, utilise la simulation
+    if (isnan(temperature) || isnan(humidity)) {
+      if (useSensorData) {
+        Serial.println("[WARN] Capteur DHT non detecte, mode simulation active");
+        useSensorData = false;
+      }
+      simulateWeatherData(temperature, humidity, unit);
     } else {
-      float tempF = temperature * 1.8 + 32;
-      publishWeatherData(tempF, humidity, 'F');
-      Serial.print("Temp: ");
-      Serial.print(tempF);
-      Serial.print(" °F");
+      if (!useSensorData) {
+        Serial.println("[INFO] Capteur DHT detecte, mode reel active");
+        useSensorData = true;
+      }
+      // Conversion en Fahrenheit si nécessaire
+      if (!isCelsius) {
+        temperature = temperature * 1.8 + 32;
+      }
     }
 
-    Serial.print(" | Hum: ");
-    Serial.print(humidity);
-    Serial.println(" %");
+    // Publication
+    publishWeatherData(temperature, humidity, unit, useSensorData);
 
     previousMillisData = currentMillis;
   }
