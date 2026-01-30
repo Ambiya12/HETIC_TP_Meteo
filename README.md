@@ -7,7 +7,7 @@ A real-time weather station system using ESP32, MQTT, WebSocket, and a web front
 - Jules Bourin
 - Ambiya Dimas Galystan
 - Anatole Dupuis
-- Anatole TU
+- Antoine TU
 - Myriam Gzara
 
 ## 📋 Prerequisites
