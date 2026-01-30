@@ -77,10 +77,8 @@ function handleWebSocketMessage(event) {
       return;
     }
     
-    if (message.topic === 'station/data' && message.data) {
-      updateMetrics(message.data);
-      state.messageCount++;
-      elements.messageCount.textContent = state.messageCount;
+    if (message.topic === "station-meteo/data" && message.message) {
+      updateMetrics(message.message);
     }
     
   } catch (error) {
