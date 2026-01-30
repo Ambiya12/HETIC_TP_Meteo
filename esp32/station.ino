@@ -80,13 +80,15 @@ void publishWeatherData(float temperature, float humidity, char unit) {
   }
 
   // Publish to individual topics
-  String tempStr = String(temperature, 1);
-  String humStr = String(humidity, 1);
-  String unitStr = String(unit);
+    mqttClient.publish(TOPIC_TEMPERATURE, createDataJson(temperature, humidity, unit););
+  // String tempStr = String(temperature, 1);
+  // String humStr = String(humidity, 1);
+  // String unitStr = String(unit);
 
-  mqttClient.publish(TOPIC_TEMPERATURE, tempStr.c_str());
-  mqttClient.publish(TOPIC_HUMIDITY, humStr.c_str());
-  mqttClient.publish(TOPIC_UNIT, unitStr.c_str());
+
+  // mqttClient.publish(TOPIC_TEMPERATURE, tempStr.c_str());
+  // mqttClient.publish(TOPIC_HUMIDITY, humStr.c_str());
+  // mqttClient.publish(TOPIC_UNIT, unitStr.c_str());
 
   // Debug output
   Serial.println("Published:");
